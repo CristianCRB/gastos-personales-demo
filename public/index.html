@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExpenseFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --canvas: #0B0C0E;
+      --surface: #151618;
+      --surface-raised: #1C1D20;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.12);
+      --text-primary: #EFEEEB;
+      --text-secondary: #8B8A88;
+      --text-tertiary: #5C5B59;
+      --amber: #F5A623;
+      --amber-dim: rgba(245,166,35,0.12);
+      --emerald: #34D399;
+      --emerald-dim: rgba(52,211,153,0.12);
+      --rose: #F87171;
+      --rose-dim: rgba(248,113,113,0.12);
+      --blue: #60A5FA;
+      --blue-dim: rgba(96,165,250,0.12);
+      --purple: #A78BFA;
+      --purple-dim: rgba(167,139,250,0.12);
+      --toggle-bg: #1C1D20;
+      --toggle-border: rgba(255,255,255,0.08);
+      --toggle-knob: #0B0C0E;
+      --scrollbar-bg: #0B0C0E;
+      --scrollbar-thumb: #2A2B2E;
+      --glow-1: rgba(245,166,35,0.04);
+      --glow-2: rgba(52,211,153,0.03);
+    }
+
+    :root.light {
+      --canvas: #F4F3F0;
+      --surface: #FFFFFF;
+      --surface-raised: #FAFAF8;
+      --border: rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.12);
+      --text-primary: #1A1A18;
+      --text-secondary: #6B6A66;
+      --text-tertiary: #9C9B98;
+      --amber: #D97706;
+      --amber-dim: rgba(217,119,6,0.08);
+      --emerald: #059669;
+      --emerald-dim: rgba(5,150,105,0.08);
+      --rose: #DC2626;
+      --rose-dim: rgba(220,38,38,0.08);
+      --blue: #2563EB;
+      --blue-dim: rgba(37,99,235,0.08);
+      --purple: #7C3AED;
+      --purple-dim: rgba(124,58,237,0.08);
+      --toggle-bg: #E5E4E1;
+      --toggle-border: rgba(0,0,0,0.07);
+      --toggle-knob: #FFFFFF;
+      --scrollbar-bg: #F4F3F0;
+      --scrollbar-thumb: #D4D3D0;
+      --glow-1: rgba(217,119,6,0.04);
+      --glow-2: rgba(5,150,105,0.03);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    ::selection { background: var(--amber); color: #0B0C0E; }
+    :root.light ::selection { background: var(--amber); color: #FFFFFF; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+    body {
+      font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--canvas);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.4s ease, color 0.4s ease;
+      overflow-x: hidden;
+    }
+
+    /* Geometric background pattern */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 70%);
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(100px);
+      animation: orbFloat 25s ease-in-out infinite alternate;
+    }
+
+    .bg-orb--1 {
+      width: 700px; height: 700px;
+      background: var(--glow-1);
+      top: -250px; left: -150px;
+    }
+
+    .bg-orb--2 {
+      width: 500px; height: 500px;
+      background: var(--glow-2);
+      bottom: -200px; right: -100px;
+      animation-delay: -8s;
+      animation-duration: 30s;
+    }
+
+    @keyframes orbFloat {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(80px, -60px) scale(1.15); }
+      100% { transform: translate(-40px, 40px) scale(0.9); }
+    }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 0;
+      background: rgba(11,12,14,0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    :root.light header {
+      background: rgba(244,243,240,0.8);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      transition: color 0.4s ease;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--amber);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0B0C0E;
+      font-size: 16px;
+      font-weight: 800;
+      font-family: 'Archivo Black', sans-serif;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.4s ease;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      transition: background 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background: var(--emerald);
+      box-shadow: 0 0 8px rgba(52,211,153,0.4);
+    }
+
+    .realtime-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--emerald);
+      padding: 4px 12px;
+      border: 1px solid var(--emerald-dim);
+      border-radius: 4px;
+      transition: color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .realtime-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--emerald);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    /* Theme toggle - pill switch */
+    .theme-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--toggle-bg);
+      border: 1px solid var(--toggle-border);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .theme-switch:active { transform: scale(0.95); }
+
+    .theme-switch-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: var(--toggle-knob);
+      border-radius: 50%;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    :root.dark .theme-switch-knob { transform: translateX(22px); }
+    :root.light .theme-switch-knob { transform: translateX(0); }
+
+    .theme-switch-knob svg {
+      width: 10px;
+      height: 10px;
+      stroke: var(--text-secondary);
+      transition: stroke 0.3s ease;
+    }
+
+    .theme-switch .icon-sun { display: none; }
+    .theme-switch .icon-moon { display: block; }
+    :root.light .theme-switch .icon-sun { display: block; }
+    :root.light .theme-switch .icon-moon { display: none; }
+
+    /* ===== SETTINGS DROPDOWN ===== */
+    .settings-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .settings-btn:hover {
+      background: var(--surface-raised);
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .settings-btn svg { width: 16px; height: 16px; }
+
+    .settings-btn.active {
+      background: var(--surface-raised);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .settings-wrapper {
+      position: relative;
+      display: flex;
+    }
+
+    .settings-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.96);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      overflow: hidden;
+    }
+
+    .settings-dropdown.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .settings-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: background 0.15s ease, color 0.15s ease;
+      font-family: inherit;
+    }
+
+    .settings-dropdown-item:hover {
+      background: var(--surface-raised);
+      color: var(--text-primary);
+    }
+
+    .settings-dropdown-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .settings-dropdown-item.danger { color: var(--rose); }
+    .settings-dropdown-item.danger:hover { background: var(--rose-dim); }
+
+    .settings-dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px 32px;
+      max-width: 400px;
+      width: 90%;
+      position: relative;
+      animation: modalEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalEnter {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--amber), var(--emerald));
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: var(--canvas);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      transition: color 0.2s ease;
+    }
+
+    .modal-close:hover { color: var(--text-primary); }
+
+    .modal-close svg { width: 14px; height: 14px; }
+
+    .modal-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .modal-sub {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .modal-qr-wrap {
+      background: var(--canvas);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-qr-wrap img {
+      width: 180px;
+      height: 180px;
+      image-rendering: pixelated;
+    }
+
+    .modal-status {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .modal-status.pending { background: var(--amber-dim); color: var(--amber); }
+    .modal-status.success { background: var(--emerald-dim); color: var(--emerald); }
+
+    /* ===== LOGIN SCREEN ===== */
+    .login-section {
+      min-height: calc(100vh - 55px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 0;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 52px 48px 44px;
+      max-width: 440px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: cardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--amber), var(--emerald));
+      transition: background 0.4s ease;
+    }
+
+    @keyframes cardEnter {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 28px;
+      background: var(--amber-dim);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--amber);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .login-icon svg { width: 24px; height: 24px; }
+
+    .login-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      text-align: center;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      transition: color 0.4s ease;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 32px;
+      transition: color 0.4s ease;
+    }
+
+    .qr-wrap {
+      background: var(--canvas);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: center;
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    .qr-wrap img {
+      width: 200px;
+      height: 200px;
+      image-rendering: pixelated;
+    }
+
+    .steps {
+      margin-bottom: 28px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      transition: color 0.4s ease;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      transition: border-color 0.4s ease, color 0.4s ease;
+    }
+
+    .scan-status {
+      text-align: center;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.4s ease;
+    }
+
+    .scan-status.pending {
+      background: var(--amber-dim);
+      color: var(--amber);
+    }
+
+    .scan-status.success {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+    }
+
+    /* ===== DASHBOARD ===== */
+    .dashboard {
+      display: none;
+      padding: 44px 0 80px;
+    }
+
+    .dashboard.active { display: block; }
+
+    .dash-header {
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: cardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .dash-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      transition: color 0.4s ease;
+    }
+
+    .dash-title span {
+      background: linear-gradient(135deg, var(--amber), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .dash-sub {
+      color: var(--text-secondary);
+      font-size: 15px;
+      transition: color 0.4s ease;
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease, transform 0.25s ease;
+      opacity: 0;
+      transform: translateY(16px);
+      cursor: default;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      transition: background 0.3s ease;
+    }
+
+    .stat-card:nth-child(1)::before { background: var(--amber); }
+    .stat-card:nth-child(2)::before { background: var(--emerald); }
+    .stat-card:nth-child(3)::before { background: var(--blue); }
+    .stat-card:nth-child(4)::before { background: var(--purple); }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-strong);
+      background: var(--surface-raised);
+    }
+
+    .stat-card:nth-child(1) { animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards; }
+    .stat-card:nth-child(2) { animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; }
+    .stat-card:nth-child(3) { animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards; }
+    .stat-card:nth-child(4) { animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+      transition: color 0.4s ease;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      transition: color 0.4s ease;
+    }
+
+    .stat-value.flash {
+      animation: statFlash 0.4s ease;
+    }
+
+    @keyframes statFlash {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .stat-foot {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+      transition: color 0.4s ease;
+    }
+
+    /* ===== BENTO ===== */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 20px;
+    }
+
+    .bento-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: background 0.4s ease, border-color 0.4s ease;
+      opacity: 0;
+      animation: cardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+    }
+
+    .bento-card:nth-child(2) { animation-delay: 0.3s; }
+
+    .bento-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .bento-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      transition: color 0.4s ease;
+    }
+
+    .bento-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: color 0.4s ease, border-color 0.4s ease;
+    }
+
+    /* ===== TABLE ===== */
+    .expense-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .expense-table thead th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-tertiary);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.4s ease, border-color 0.4s ease;
+    }
+
+    .expense-table tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      transition: border-color 0.4s ease;
+    }
+
+    .expense-table tbody tr:last-child td { border-bottom: none; }
+    .expense-table tbody tr { transition: background 0.2s ease; }
+    .expense-table tbody tr:hover { background: var(--surface-raised); }
+
+    .td-vendor {
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color 0.4s ease;
+    }
+
+    .td-date {
+      color: var(--text-secondary);
+      font-size: 12px;
+      transition: color 0.4s ease;
+    }
+
+    .td-amount {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      color: var(--text-primary);
+      transition: color 0.4s ease;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag-food { background: var(--amber-dim); color: var(--amber); }
+    .tag-transport { background: var(--blue-dim); color: var(--blue); }
+    .tag-office { background: var(--purple-dim); color: var(--purple); }
+    .tag-utilities { background: var(--emerald-dim); color: var(--emerald); }
+    .tag-travel { background: var(--rose-dim); color: var(--rose); }
+
+    /* ===== CHART ===== */
+    .chart-box {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chart-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      transform: translateX(-10px);
+      animation: rowEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .chart-row:nth-child(1) { animation-delay: 0.05s; }
+    .chart-row:nth-child(2) { animation-delay: 0.1s; }
+    .chart-row:nth-child(3) { animation-delay: 0.15s; }
+    .chart-row:nth-child(4) { animation-delay: 0.2s; }
+    .chart-row:nth-child(5) { animation-delay: 0.25s; }
+
+    @keyframes rowEnter {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .chart-label {
+      width: 85px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      transition: color 0.4s ease;
+    }
+
+    .chart-track {
+      flex: 1;
+      height: 18px;
+      background: var(--canvas);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: background 0.4s ease;
+    }
+
+    .chart-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      min-width: 4px;
+    }
+
+    .chart-row:nth-child(1) .chart-fill { background: var(--amber); }
+    .chart-row:nth-child(2) .chart-fill { background: var(--emerald); }
+    .chart-row:nth-child(3) .chart-fill { background: var(--blue); }
+    .chart-row:nth-child(4) .chart-fill { background: var(--purple); }
+    .chart-row:nth-child(5) .chart-fill { background: var(--rose); }
+
+    .chart-val {
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 64px;
+      text-align: right;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.4s ease;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 44px 20px;
+    }
+
+    .empty-icon {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 14px;
+      color: var(--text-tertiary);
+      opacity: 0.4;
+      transition: color 0.4s ease;
+    }
+
+    .empty-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: color 0.4s ease;
+    }
+
+    .empty-hint {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+      transition: color 0.4s ease;
+    }
+
+    /* ===== LOADING ===== */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--amber);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      transition: border-color 0.4s ease;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      z-index: 200;
+      transform: translateY(120%);
+      opacity: 0;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+      max-width: 380px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      flex-shrink: 0;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .bento-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+      .login-card { padding: 36px 24px 32px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .dash-title { font-size: 28px; }
+      .stat-value { font-size: 22px; }
+      .bento-card { padding: 20px; }
+      .expense-table thead th,
+      .expense-table tbody td { padding: 10px 12px; }
+      .chart-label { width: 65px; }
+      .toast { right: 16px; left: 16px; bottom: 16px; max-width: none; }
+      .header-inner { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <div class="logo-icon">E</div>
+        ExpenseFlow
+      </div>
+      <div class="header-right">
+        <div class="status-badge">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Conectando</span>
+        </div>
+        <span class="realtime-badge" id="realtimeBadge">
+          <span class="realtime-dot"></span>
+          En vivo
+        </span>
+        <div class="theme-switch" id="themeSwitch" role="button" tabindex="0" aria-label="Cambiar tema">
+          <div class="theme-switch-knob">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          </div>
+        </div>
+        <div class="settings-wrapper">
+          <button class="settings-btn" id="settingsBtn" aria-label="Ajustes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+          </button>
+          <div class="settings-dropdown" id="settingsDropdown">
+            <button class="settings-dropdown-item" id="reconnectBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/></svg>
+              Re-escanear QR
+            </button>
+            <div class="settings-dropdown-divider"></div>
+            <button class="settings-dropdown-item danger" id="disconnectBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 003.41 2.6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 2 2 0 011.72 2v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.42 19.42 0 01-3.33-2.67m-2.67-3.34a19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91"/><line x1="23" y1="1" x2="1" y2="23"/></svg>
+              Desconectar WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="login-section" id="loginSection">
+      <div class="login-card">
+        <div class="login-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M22 7l-10 7L2 7"/>
+          </svg>
+        </div>
+        <h1 class="login-title">Bienvenido</h1>
+        <p class="login-subtitle">Vincula tu WhatsApp para gestionar gastos automaticamente</p>
+        <div class="qr-wrap">
+          <img id="qrCode" alt="Codigo QR" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%230B0C0E' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Archivo, sans-serif' font-size='13' fill='%238B8A88' text-anchor='middle' dy='.3em'%3ECargando...%3C/text%3E%3C/svg%3E">
+        </div>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span>Abre WhatsApp en tu celular</div>
+          <div class="step"><span class="step-num">2</span>Ve a Dispositivos vinculados</div>
+          <div class="step"><span class="step-num">3</span>Escanea este codigo QR</div>
+        </div>
+        <div class="scan-status pending" id="scanStatus">Esperando escaneo</div>
+      </div>
+    </section>
+
+    <div class="dashboard" id="dashboard">
+      <div class="container">
+        <div class="dash-header">
+          <h1 class="dash-title">Panel de <span>Gastos</span></h1>
+          <p class="dash-sub">Gestiona tus recibos y gastos en tiempo real</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Gastado</div>
+            <div class="stat-value" id="statTotal">$0</div>
+            <div class="stat-foot">Acumulado general</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Recibos</div>
+            <div class="stat-value" id="statCount">0</div>
+            <div class="stat-foot">Transacciones procesadas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ultimo</div>
+            <div class="stat-value" id="statLastVendor" style="font-size:20px; word-break:break-all;">-</div>
+            <div class="stat-foot">Comercio mas reciente</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Este Mes</div>
+            <div class="stat-value" id="statMonthly">$0</div>
+            <div class="stat-foot">Gastos del periodo</div>
+          </div>
+        </div>
+
+        <div class="bento-grid">
+          <div class="bento-card">
+            <div class="bento-head">
+              <span class="bento-title">Gastos Recientes</span>
+            </div>
+            <div id="expensesList">
+              <div class="loading"><div class="spinner"></div></div>
+            </div>
+          </div>
+          <div class="bento-card">
+            <div class="bento-head">
+              <span class="bento-title">Categorias</span>
+            </div>
+            <div class="chart-box" id="chartBox">
+              <div class="empty-state">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <p class="empty-text">Sin datos</p>
+                <p class="empty-hint">Los gastos apareceran aqui</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-title">Escanea el QR</div>
+      <div class="modal-sub">Usa WhatsApp en tu celular para vincular</div>
+      <div class="modal-qr-wrap">
+        <img id="modalQrCode" alt="Codigo QR" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect fill='%230B0C0E' width='180' height='180'/%3E%3Ctext x='50%25' y='50%25' font-family='Archivo, sans-serif' font-size='12' fill='%238B8A88' text-anchor='middle' dy='.3em'%3EGenerando...%3C/text%3E%3C/svg%3E">
+      </div>
+      <div class="modal-status pending" id="modalStatus">Esperando escaneo</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon"></span>
+    <span id="toastMsg">Nuevo gasto registrado</span>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io()
+    let sessionToken = localStorage.getItem('sessionToken')
+    let pollInterval = null
+    let loginToken = null
+    let toastTimer = null
+
+    /* ---- Theme ---- */
+    const html = document.documentElement
+    function initTheme() {
+      const saved = localStorage.getItem('theme')
+      const prefers = window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (saved) { html.className = saved }
+      else { html.className = prefers ? 'dark' : 'light' }
+    }
+
+    document.getElementById('themeSwitch').addEventListener('click', () => {
+      const next = html.className === 'dark' ? 'light' : 'dark'
+      html.className = next
+      localStorage.setItem('theme', next)
+    })
+
+    initTheme()
+
+    /* ---- Toast ---- */
+    function showToast(msg) {
+      const t = document.getElementById('toast')
+      document.getElementById('toastMsg').textContent = msg
+      t.classList.add('show')
+      clearTimeout(toastTimer)
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3500)
+    }
+
+    /* ---- Status ---- */
+    async function checkStatus() {
+      try {
+        const r = await fetch('/api/status')
+        const d = await r.json()
+        const dot = document.getElementById('statusDot')
+        const txt = document.getElementById('statusText')
+        if (d.whatsappConnected) {
+          dot.classList.add('connected')
+          txt.textContent = 'Conectado'
+        } else {
+          dot.classList.remove('connected')
+          txt.textContent = 'Sin conexion'
+        }
+      } catch (_) {}
+    }
+
+    /* ---- Login ---- */
+    async function initLogin() {
+      try {
+        const r = await fetch('/api/qr-login')
+        const d = await r.json()
+
+        if (d.alreadyConnected) {
+          if (d.sessionToken) {
+            sessionToken = d.sessionToken
+            localStorage.setItem('sessionToken', sessionToken)
+            showDashboard()
+            return
+          }
+          if (localStorage.getItem('sessionToken')) { showDashboard(); return }
+        }
+
+        if (d.waiting && !d.qr) {
+          document.getElementById('scanStatus').textContent = 'Generando QR...'
+          setTimeout(initLogin, 3000)
+          return
+        }
+
+        if (d.qr) {
+          document.getElementById('qrCode').src = d.qr
+          document.getElementById('scanStatus').textContent = 'Escanea con WhatsApp'
+          document.getElementById('scanStatus').className = 'scan-status pending'
+        }
+        loginToken = d.token
+        startPolling()
+      } catch (_) {
+        setTimeout(initLogin, 2000)
+      }
+    }
+
+    function startPolling() {
+      clearInterval(pollInterval)
+      pollInterval = setInterval(async () => {
+        if (!loginToken) return
+        try {
+          const r = await fetch('/api/verify-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: loginToken })
+          })
+          const d = await r.json()
+          if (d.success) {
+            sessionToken = d.sessionToken
+            localStorage.setItem('sessionToken', sessionToken)
+            clearInterval(pollInterval)
+            showDashboard()
+          }
+        } catch (_) {}
+      }, 2000)
+    }
+
+    function showDashboard() {
+      document.getElementById('loginSection').style.display = 'none'
+      document.getElementById('dashboard').classList.add('active')
+      document.getElementById('realtimeBadge').style.display = 'inline-flex'
+      document.getElementById('settingsBtn').style.display = 'inline-flex'
+      loadExpenses()
+      setupRealtime()
+      setupDashboardSocket()
+    }
+
+    async function loadExpenses() {
+      if (!sessionToken) return
+      try {
+        const r = await fetch('/api/expenses', {
+          headers: { 'Authorization': `Bearer ${sessionToken}` }
+        })
+        if (r.status === 401) { localStorage.removeItem('sessionToken'); location.reload(); return }
+        renderExpenses(await r.json())
+      } catch (_) {}
+    }
+
+    function renderExpenses(list) {
+      const el = document.getElementById('expensesList')
+      if (list.length === 0) {
+        el.innerHTML = `
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <p class="empty-text">No hay gastos aun</p>
+            <p class="empty-hint">Envia un recibo por WhatsApp</p>
+          </div>`
+        return
+      }
+
+      updateStats(list)
+
+      el.innerHTML = `
+        <table class="expense-table">
+          <thead><tr><th>Comercio</th><th>Fecha</th><th>Categoria</th><th style="text-align:right;">Monto</th></tr></thead>
+          <tbody>
+            ${list.slice(0, 10).map((e, i) => `
+              <tr style="opacity:0; animation: rowEnter 0.4s cubic-bezier(0.16,1,0.3,1) ${i*0.04}s forwards;">
+                <td class="td-vendor">${e.vendor || 'Desconocido'}</td>
+                <td class="td-date">${fmtDate(e.date)}</td>
+                <td><span class="tag tag-${catClass(e.category)}">${e.category || 'Otros'}</span></td>
+                <td class="td-amount">${fmtCurrency(e.total, e.currency)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`
+    }
+
+    function updateStats(list) {
+      const total = list.reduce((s, e) => s + (e.total || 0), 0)
+      document.getElementById('statTotal').textContent = fmtCurrency(total)
+      document.getElementById('statCount').textContent = list.length
+      if (list.length) document.getElementById('statLastVendor').textContent = list[0].vendor?.slice(0, 16) || '-'
+
+      const now = new Date()
+      const monthly = list.filter(e => {
+        if (!e.date) return false
+        const d = new Date(e.date)
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+      }).reduce((s, e) => s + (e.total || 0), 0)
+      document.getElementById('statMonthly').textContent = fmtCurrency(monthly)
+
+      const byCat = list.reduce((a, e) => {
+        const c = e.category || 'Otros'
+        a[c] = (a[c] || 0) + (e.total || 0)
+        return a
+      }, {})
+
+      renderChart(byCat, total)
+    }
+
+    function renderChart(byCat, total) {
+      const box = document.getElementById('chartBox')
+      const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1])
+      if (entries.length === 0) {
+        box.innerHTML = `<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p class="empty-text">Sin datos</p><p class="empty-hint">Los gastos apareceran aqui</p></div>`
+        return
+      }
+      box.innerHTML = entries.map(([cat, val], i) => `
+        <div class="chart-row" style="animation-delay:${i*0.05}s">
+          <span class="chart-label">${cat}</span>
+          <div class="chart-track"><div class="chart-fill" style="width:${(val/total)*100}%"></div></div>
+          <span class="chart-val">${fmtCurrency(val)}</span>
+        </div>
+      `).join('')
+    }
+
+    function setupRealtime() {
+      socket.on('new-expense', (e) => {
+        loadExpenses()
+        showToast('Nuevo: ' + (e.vendor || 'Gasto') + ' por ' + fmtCurrency(e.total, e.currency))
+        document.querySelectorAll('.stat-value').forEach(el => {
+          el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash')
+        })
+      })
+    }
+
+    function fmtDate(s) { return s ? new Date(s).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) : '-' }
+    function fmtCurrency(n, c) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+    function catClass(c) {
+      const m = { 'Alimentos':'food', 'Transporte':'transport', 'Servicios':'utilities', 'Salud':'food', 'Educacion':'office', 'Entretenimiento':'travel', 'Tecnologia':'office' }
+      return m[c] || 'food'
+    }
+
+    /* ---- Settings Dropdown ---- */
+    document.getElementById('settingsBtn').addEventListener('click', (e) => {
+      e.stopPropagation()
+      document.getElementById('settingsDropdown').classList.toggle('open')
+      document.getElementById('settingsBtn').classList.toggle('active')
+    })
+
+    document.addEventListener('click', () => {
+      document.getElementById('settingsDropdown').classList.remove('open')
+      document.getElementById('settingsBtn').classList.remove('active')
+    })
+
+    /* ---- QR Modal ---- */
+    const modal = document.getElementById('qrModal')
+    document.getElementById('modalClose').addEventListener('click', closeModal)
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal() })
+
+    function openModal() {
+      modal.classList.add('open')
+      document.getElementById('modalStatus').textContent = 'Generando QR...'
+      document.getElementById('modalStatus').className = 'modal-status pending'
+      document.getElementById('settingsDropdown').classList.remove('open')
+      document.getElementById('settingsBtn').classList.remove('active')
+    }
+
+    function closeModal() {
+      modal.classList.remove('open')
+    }
+
+    /* ---- Re-scan QR ---- */
+    document.getElementById('reconnectBtn').addEventListener('click', async () => {
+      if (!sessionToken) return
+      openModal()
+      try {
+        const r = await fetch('/api/reconnect-whatsapp', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${sessionToken}` }
+        })
+        if (!r.ok) {
+          document.getElementById('modalStatus').textContent = 'Error al generar QR'
+          document.getElementById('modalStatus').className = 'modal-status pending'
+          return
+        }
+        const d = await r.json()
+        if (d.qr) {
+          document.getElementById('modalQrCode').src = d.qr
+          document.getElementById('modalStatus').textContent = 'Escanea con WhatsApp'
+          document.getElementById('modalStatus').className = 'modal-status pending'
+        }
+      } catch (_) {
+        document.getElementById('modalStatus').textContent = 'Error de conexion'
+      }
+    })
+
+    /* ---- Disconnect WhatsApp ---- */
+    document.getElementById('disconnectBtn').addEventListener('click', async () => {
+      if (!sessionToken) return
+      if (!confirm('Desconectaras WhatsApp de la plataforma. Deberas escanear el QR nuevamente para usarlo. Deseas continuar?')) return
+      document.getElementById('settingsDropdown').classList.remove('open')
+      document.getElementById('settingsBtn').classList.remove('active')
+      try {
+        await fetch('/api/disconnect-whatsapp', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${sessionToken}` }
+        })
+      } catch (_) {}
+      localStorage.removeItem('sessionToken')
+      sessionToken = null
+      location.reload()
+    })
+
+    /* ---- Socket events on dashboard ---- */
+    function setupDashboardSocket() {
+      socket.on('whatsapp-disconnected', () => {
+        const dot = document.getElementById('statusDot')
+        const txt = document.getElementById('statusText')
+        dot.classList.remove('connected')
+        txt.textContent = 'Sin conexion'
+        showToast('WhatsApp desconectado')
+      })
+
+      socket.on('whatsapp-qr-image', (d) => {
+        const modalQr = document.getElementById('modalQrCode')
+        if (d && modal.classList.contains('open')) {
+          modalQr.src = d
+          document.getElementById('modalStatus').textContent = 'Escanea con WhatsApp'
+          document.getElementById('modalStatus').className = 'modal-status pending'
+        }
+      })
+
+      socket.on('whatsapp-connected', () => {
+        if (modal.classList.contains('open')) {
+          document.getElementById('modalStatus').textContent = 'Conectado'
+          document.getElementById('modalStatus').className = 'modal-status success'
+          setTimeout(closeModal, 1200)
+          showToast('WhatsApp reconectado')
+        }
+        checkStatus()
+      })
+    }
+
+    /* ---- Init ---- */
+    async function init() {
+      await checkStatus()
+      setInterval(checkStatus, 5000)
+
+      if (sessionToken) {
+        try {
+          const r = await fetch('/api/session/' + sessionToken)
+          if (r.ok) {
+            const d = await r.json()
+            if (d.connected) { showDashboard(); return }
+          }
+        } catch (_) {}
+        localStorage.removeItem('sessionToken')
+        sessionToken = null
+      }
+
+      socket.on('whatsapp-qr-image', d => {
+        if (d) {
+          document.getElementById('qrCode').src = d
+          document.getElementById('scanStatus').textContent = 'Escanea con WhatsApp'
+          document.getElementById('scanStatus').className = 'scan-status pending'
+        }
+      })
+
+      socket.on('whatsapp-connected', async () => {
+        document.getElementById('scanStatus').textContent = 'Conectado'
+        document.getElementById('scanStatus').className = 'scan-status success'
+        const r = await fetch('/api/check-auth')
+        const d = await r.json()
+        if (d.sessionToken) {
+          sessionToken = d.sessionToken
+          localStorage.setItem('sessionToken', sessionToken)
+          setTimeout(showDashboard, 1000)
+        }
+      })
+
+      initLogin()
+    }
+
+    init()
+  </script>
+</body>
+</html>
