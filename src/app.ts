@@ -3,6 +3,11 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { dashboardRouter } from '@/modules/dashboard/DashboardRouter.js';
+import { incomeRouter } from '@/modules/income/IncomeRouter.js';
+import { manualExpenseRouter } from '@/modules/manual-expenses/ManualExpenseRouter.js';
+import { fixedExpenseRouter } from '@/modules/fixed-expenses/FixedExpenseRouter.js';
+import { creditCardRouter } from '@/modules/credit-cards/CreditCardRouter.js';
+import { summaryRouter } from '@/modules/summary/SummaryRouter.js';
 import { socketManager } from '@/modules/dashboard/SocketManager.js';
 import { whatsAppService } from '@/modules/whatsapp/WhatsAppService.js';
 import { receiptService } from '@/modules/receipts/ReceiptService.js';
@@ -60,6 +65,11 @@ export function createApp(): AppResult {
 
   // Mount dashboard routes under /api
   expressApp.use('/api', dashboardRouter);
+  expressApp.use('/api/incomes', incomeRouter);
+  expressApp.use('/api/manual-expenses', manualExpenseRouter);
+  expressApp.use('/api/fixed-expenses', fixedExpenseRouter);
+  expressApp.use('/api/credit-cards', creditCardRouter);
+  expressApp.use('/api/monthly-summary', summaryRouter);
 
   // Serve index.html for root
   expressApp.get('/', (_req, res) => {

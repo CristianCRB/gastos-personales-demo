@@ -96,6 +96,155 @@ export interface ReceiptItemInsert {
   amount: number;
 }
 
+// ───────────────────── 5. INCOMES ─────────────────────
+
+export interface IncomeRow {
+  id: string;
+  organization_id: string;
+  description: string;
+  amount: number;
+  month: number;
+  year: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IncomeInsert {
+  organization_id: string;
+  description?: string;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+// ───────────────────── 6. MANUAL EXPENSES ─────────────────────
+
+export interface ManualExpenseRow {
+  id: string;
+  organization_id: string;
+  description: string;
+  amount: number;
+  category: string;
+  expense_date: string;
+  payment_method: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ManualExpenseInsert {
+  organization_id: string;
+  description: string;
+  amount: number;
+  category?: string;
+  expense_date?: string;
+  payment_method?: string;
+  notes?: string | null;
+}
+
+// ───────────────────── 7. CREDIT CARDS ─────────────────────
+
+export interface CreditCardRow {
+  id: string;
+  organization_id: string;
+  name: string;
+  credit_limit: number | null;
+  closing_day: number;
+  due_day: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreditCardInsert {
+  organization_id: string;
+  name: string;
+  credit_limit?: number | null;
+  closing_day: number;
+  due_day: number;
+  is_active?: boolean;
+}
+
+// ───────────────────── 8. CREDIT CARD PURCHASES ─────────────────────
+
+export interface CreditCardPurchaseRow {
+  id: string;
+  organization_id: string;
+  credit_card_id: string;
+  description: string;
+  total_amount: number;
+  total_installments: number;
+  installment_value: number;
+  purchase_date: string;
+  first_installment_month: number;
+  first_installment_year: number;
+  category: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreditCardPurchaseInsert {
+  organization_id: string;
+  credit_card_id: string;
+  description: string;
+  total_amount: number;
+  total_installments: number;
+  installment_value: number;
+  purchase_date?: string;
+  first_installment_month: number;
+  first_installment_year: number;
+  category?: string;
+  notes?: string | null;
+}
+
+// ───────────────────── 9. FIXED EXPENSES ─────────────────────
+
+export interface FixedExpenseRow {
+  id: string;
+  organization_id: string;
+  name: string;
+  amount: number;
+  category: string;
+  due_day: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FixedExpenseInsert {
+  organization_id: string;
+  name: string;
+  amount: number;
+  category?: string;
+  due_day?: number | null;
+  is_active?: boolean;
+}
+
+// ───────────────────── 10. FIXED EXPENSE PAYMENTS ─────────────────────
+
+export interface FixedExpensePaymentRow {
+  id: string;
+  organization_id: string;
+  fixed_expense_id: string;
+  month: number;
+  year: number;
+  amount_paid: number;
+  is_paid: boolean;
+  paid_date: string | null;
+  created_at: string;
+}
+
+export interface FixedExpensePaymentInsert {
+  organization_id: string;
+  fixed_expense_id: string;
+  month: number;
+  year: number;
+  amount_paid: number;
+  is_paid?: boolean;
+  paid_date?: string | null;
+}
+
 // ───────────────────── Typed Database shape for Supabase client ─────────────────────
 
 export interface Database {
@@ -120,6 +269,36 @@ export interface Database {
         Row: ReceiptItemRow;
         Insert: ReceiptItemInsert;
         Update: Partial<ReceiptItemInsert>;
+      };
+      incomes: {
+        Row: IncomeRow;
+        Insert: IncomeInsert;
+        Update: Partial<IncomeInsert>;
+      };
+      manual_expenses: {
+        Row: ManualExpenseRow;
+        Insert: ManualExpenseInsert;
+        Update: Partial<ManualExpenseInsert>;
+      };
+      credit_cards: {
+        Row: CreditCardRow;
+        Insert: CreditCardInsert;
+        Update: Partial<CreditCardInsert>;
+      };
+      credit_card_purchases: {
+        Row: CreditCardPurchaseRow;
+        Insert: CreditCardPurchaseInsert;
+        Update: Partial<CreditCardPurchaseInsert>;
+      };
+      fixed_expenses: {
+        Row: FixedExpenseRow;
+        Insert: FixedExpenseInsert;
+        Update: Partial<FixedExpenseInsert>;
+      };
+      fixed_expense_payments: {
+        Row: FixedExpensePaymentRow;
+        Insert: FixedExpensePaymentInsert;
+        Update: Partial<FixedExpensePaymentInsert>;
       };
     };
     Views: Record<string, never>;
