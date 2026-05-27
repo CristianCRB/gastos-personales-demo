@@ -39,7 +39,6 @@ router.get('/', async (req, res) => {
       .from('receipts')
       .select('*')
       .eq('organization_id', auth.orgId)
-      .eq('status', 'processed')
       .order('created_at', { ascending: false });
 
     const manualPromise = supabase
@@ -92,10 +91,11 @@ router.get('/', async (req, res) => {
       let totalPending = 0;
       for (const i of items) {
         const p = i['payment'] as Record<string, unknown> | null;
+        const amt = (i['amount'] as number) || 0;
         if (p && p['isPaid']) {
-          totalPaid += (p['amountPaid'] as number);
+          totalPaid += amt;
         } else {
-          totalPending += (i['amount'] as number);
+          totalPending += amt;
         }
       }
 

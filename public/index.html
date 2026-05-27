@@ -1171,6 +1171,7 @@
           return
         }
 
+        const totalAmount = all.reduce((s, e) => s + (e._amount || 0), 0)
         el.innerHTML = `<table class="expense-table"><thead><tr><th style="width:32px;"></th><th>Comercio</th><th>Fecha</th><th>Categoria</th><th style="text-align:right;">Monto</th><th style="width:80px;"></th></tr></thead><tbody>${all.slice(0, 50).map((e, i) => `
           <tr style="opacity:0;animation:rowEnter .4s cubic-bezier(0.16,1,0.3,1) ${i*0.02}s forwards;">
             <td class="td-source">${e._source === 'whatsapp' ? '📷' : '✏️'}</td>
@@ -1179,7 +1180,7 @@
             <td><span class="tag tag-${catClass(e.category)}">${e.category || 'Otros'}</span></td>
             <td class="td-amount">${fmtCur(e._amount)}</td>
             <td>${e._source === 'manual' ? `<button class="btn btn-sm btn-secondary" onclick="editManualExpense('${e.id}')" title="Editar">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteManualExpense('${e.id}')" title="Eliminar" style="margin-left:4px;">🗑️</button>` : ''}</td>
-          </tr>`).join('')}</tbody></table>`
+          </tr>`).join('')}</tbody><tfoot><tr class="total-row"><td colspan="4" style="text-align:right;font-weight:600;padding:12px 16px;border-top:2px solid var(--border-strong);color:var(--text-primary);font-size:15px;">Total del Mes</td><td style="text-align:right;font-weight:700;padding:12px 16px;border-top:2px solid var(--border-strong);color:var(--amber);font-size:17px;">${fmtCur(totalAmount)}</td><td style="border-top:2px solid var(--border-strong);"></td></tr></tfoot></table>`
       } catch (_) { el.innerHTML = '<div class="empty-state"><p class="empty-text">Error al cargar gastos</p></div>' }
     }
 

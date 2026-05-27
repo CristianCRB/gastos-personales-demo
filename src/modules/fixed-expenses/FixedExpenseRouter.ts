@@ -192,10 +192,11 @@ router.get('/monthly', async (req, res) => {
     let totalPending = 0;
     for (const i of items) {
       const p = i['payment'] as Record<string, unknown> | null;
+      const amt = (i['amount'] as number) || 0;
       if (p && p['isPaid']) {
-        totalPaid += (p['amountPaid'] as number);
+        totalPaid += amt;
       } else {
-        totalPending += (i['amount'] as number);
+        totalPending += amt;
       }
     }
 
