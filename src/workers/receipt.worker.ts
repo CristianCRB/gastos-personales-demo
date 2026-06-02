@@ -90,6 +90,17 @@ async function buildWorker(): Promise<Worker<ReceiptJobData> | null> {
         return { expenseId: null, skipped: true };
       }
 
+      const existingExact = await defaultReceiptRepository.isExactDuplicate(receiptData.vendor, receiptData.date, receiptData.total);
+      if (existingExact) {
+        logger.warn(`[Worker ${jobId}] Duplicate exact skipped (vendor+date+total): ${receiptData.vendor} ${receiptData.date} ${receiptData.total}`);
+        if (upload) { deleteReceiptImage(upload.storagePath).catch(() => {}); }
+        const sock = whatsAppService.getSock();
+        if (sock) {
+          await sock.sendMessage(from, { text: `ℹ️ Esta factura de *${receiptData.vendor ?? 'comercio desconocido'}* por *$${(receiptData.total ?? 0).toLocaleString('es-CO')}* ya fue registrada anteriormente. Envia otra diferente para procesarla.` }).catch(() => {});
+        }
+        return { expenseId: null, skipped: true };
+      }
+
       const expense: Expense = {
         id: uuidv4(),
         phoneNumber,

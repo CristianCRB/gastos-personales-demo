@@ -12,11 +12,22 @@ export class ReceiptValidatorService {
     const result = RawReceiptSchema.safeParse(data);
 
     if (!result.success) {
-      const fallback: Record<string, unknown> = {};
-      for (const key of Object.keys(data)) {
-        fallback[key] = data[key] ?? null;
+      try {
+        const fallback: Record<string, unknown> = {};
+        for (const key of Object.keys(data)) {
+          fallback[key] = data[key] ?? null;
+        }
+        if (Array.isArray(fallback['items'])) {
+          fallback['items'] = fallback['items'].map((item: Record<string, unknown>) => ({
+            ...item,
+            unit_price: typeof item['unit_price'] === 'number' ? item['unit_price'] : null,
+            amount: typeof item['amount'] === 'number' ? item['amount'] : 0,
+          }));
+        }
+        return RawReceiptSchema.parse(fallback);
+      } catch {
+        return { vendor: null, date: null, total: null, currency: null, subtotal: null, tax: null, items: [], category: null, invoiceNumber: null, paymentMethod: null };
       }
-      return RawReceiptSchema.parse(fallback);
     }
 
     return result.data;
@@ -59,8 +70,8 @@ export class ReceiptValidatorService {
     return items.map((item) => ({
       description: typeof item.description === 'string' ? item.description : '',
       quantity: item.quantity != null && item.quantity >= 0 ? item.quantity : null,
-      unit_price: item.unit_price != null && item.unit_price >= 0 ? item.unit_price : null,
-      amount: typeof item.amount === 'number' && item.amount >= 0 ? item.amount : 0,
+      unit_price: item.unit_price != null ? item.unit_price : null,
+      amount: typeof item.amount === 'number' ? item.amount : 0,
     }));
   }
 }

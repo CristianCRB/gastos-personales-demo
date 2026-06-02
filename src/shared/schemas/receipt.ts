@@ -16,8 +16,8 @@ export const CategorySchema = z.enum(CATEGORIES);
 export const ReceiptLineItemSchema = z.object({
   description: z.string(),
   quantity: z.union([z.number().nonnegative(), z.null()]).optional(),
-  unit_price: z.union([z.number().nonnegative(), z.null()]).optional(),
-  amount: z.number().nonnegative(),
+  unit_price: z.union([z.number(), z.null()]).optional(),
+  amount: z.number(),
 });
 
 export const RawReceiptSchema = z.object({
