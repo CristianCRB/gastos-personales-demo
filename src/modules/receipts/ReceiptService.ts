@@ -277,7 +277,7 @@ export class ReceiptService {
     if (!sock) return;
 
     const jid = `${phoneNumber}@s.whatsapp.net`;
-    const message = `Hola! Soy el asistente de ExpenseFlow. Envíame una foto de tu recibo o factura para registrarlo.\n\nNumero vinculado: ${phoneNumber}`;
+    const message = `Hola! Soy el asistente de Personal Expenses. Envíame una foto de tu recibo o factura para registrarlo.\n\nNumero vinculado: ${phoneNumber}`;
 
     const doSend = (attempt: number): void => {
       sock.sendMessage(jid, { text: message })

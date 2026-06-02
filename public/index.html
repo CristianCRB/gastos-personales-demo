@@ -313,6 +313,20 @@
     .td-date { color: var(--text-secondary); font-size: 13px; }
     .td-amount { text-align: right; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
     .td-source { text-align: center; font-size: 16px; }
+    .td-toggle { text-align: center; width: 28px; padding: 12px 4px !important; }
+    .btn-toggle {
+      width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center;
+      justify-content: center; font-size: 10px; color: var(--text-tertiary); transition: all .15s;
+      cursor: pointer; background: transparent; border: none;
+    }
+    .btn-toggle:hover { background: var(--surface-raised); color: var(--text-primary); }
+    .btn-toggle.open { transform: rotate(90deg); }
+    .expense-detail-row td { padding: 10px 16px 10px !important; border-bottom: 1px solid var(--border); background: var(--surface-raised); }
+    .detail-content { padding: 12px 16px 12px 28px; }
+    .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .detail-table thead th { text-align: left; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+    .detail-table tbody td { padding: 6px 12px; border-bottom: none; background: transparent !important; }
+    .detail-empty { color: var(--text-tertiary); font-size: 13px; padding: 4px 0; }
     .tag {
       display: inline-flex; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600;
     }
@@ -1143,6 +1157,28 @@
     }
 
     /* ===== EXPENSES ===== */
+    function toggleExpenseDetail(id) {
+      const row = document.getElementById('detail-' + id)
+      const btn = document.getElementById('toggle-' + id)
+      if (!row) return
+      const isOpen = row.style.display !== 'none'
+      row.style.display = isOpen ? 'none' : 'table-row'
+      if (btn) btn.classList.toggle('open', !isOpen)
+    }
+
+    function detailContent(e) {
+      const items = e.items || []
+      if (items.length === 0) return '<p class="detail-empty">Sin detalles del artículo</p>'
+      return `<table class="detail-table"><thead><tr><th>Descripción</th><th style="text-align:center;">Cant.</th><th style="text-align:right;">P/Unit</th><th style="text-align:right;">Total</th></tr></thead><tbody>${items.map(i => `
+        <tr><td>${escHtml(i.description || '-')}</td><td style="text-align:center;">${i.quantity != null ? i.quantity : '-'}</td><td style="text-align:right;">${i.unit_price != null ? fmtCur(i.unit_price) : '-'}</td><td style="text-align:right;font-weight:600;">${fmtCur(i.amount)}</td></tr>`).join('')}</tbody></table>`
+    }
+
+    function escHtml(s) {
+      const div = document.createElement('div')
+      div.textContent = s
+      return div.innerHTML
+    }
+
     async function loadExpenses() {
       const { expMonth: m, expYear: y } = state
       const el = document.getElementById('expensesList')
@@ -1172,15 +1208,19 @@
         }
 
         const totalAmount = all.reduce((s, e) => s + (e._amount || 0), 0)
-        el.innerHTML = `<table class="expense-table"><thead><tr><th style="width:32px;"></th><th>Comercio</th><th>Fecha</th><th>Categoria</th><th style="text-align:right;">Monto</th><th style="width:80px;"></th></tr></thead><tbody>${all.slice(0, 50).map((e, i) => `
+        el.innerHTML = `<table class="expense-table"><thead><tr><th style="width:28px;"></th><th style="width:32px;"></th><th>Comercio</th><th>Fecha</th><th>Categoria</th><th style="text-align:right;">Monto</th><th style="width:80px;"></th></tr></thead><tbody>${all.slice(0, 50).map((e, i) => `
           <tr style="opacity:0;animation:rowEnter .4s cubic-bezier(0.16,1,0.3,1) ${i*0.02}s forwards;">
+            <td class="td-toggle"><button id="toggle-${e.id}" class="btn-toggle" onclick="toggleExpenseDetail('${e.id}')">▶</button></td>
             <td class="td-source">${e._source === 'whatsapp' ? '📷' : '✏️'}</td>
             <td class="td-vendor">${e.vendor || 'Desconocido'}</td>
             <td class="td-date">${fmtDate(e.date)}</td>
             <td><span class="tag tag-${catClass(e.category)}">${e.category || 'Otros'}</span></td>
             <td class="td-amount">${fmtCur(e._amount)}</td>
             <td>${e._source === 'manual' ? `<button class="btn btn-sm btn-secondary" onclick="editManualExpense('${e.id}')" title="Editar">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteManualExpense('${e.id}')" title="Eliminar" style="margin-left:4px;">🗑️</button>` : ''}</td>
-          </tr>`).join('')}</tbody><tfoot><tr class="total-row"><td colspan="4" style="text-align:right;font-weight:600;padding:12px 16px;border-top:2px solid var(--border-strong);color:var(--text-primary);font-size:15px;">Total del Mes</td><td style="text-align:right;font-weight:700;padding:12px 16px;border-top:2px solid var(--border-strong);color:var(--amber);font-size:17px;">${fmtCur(totalAmount)}</td><td style="border-top:2px solid var(--border-strong);"></td></tr></tfoot></table>`
+          </tr>
+          <tr id="detail-${e.id}" class="expense-detail-row" style="display:none;">
+            <td colspan="7"><div class="detail-content">${detailContent(e)}</div></td>
+          </tr>`).join('')}</tbody><tfoot><tr class="total-row"><td colspan="5" style="text-align:right;font-weight:600;padding:12px 16px;border-top:2px solid var(--border-strong);color:var(--text-primary);font-size:15px;">Total del Mes</td><td style="text-align:right;font-weight:700;padding:12px 16px;border-top:2px solid var(--border-strong);color:var(--amber);font-size:17px;">${fmtCur(totalAmount)}</td><td style="border-top:2px solid var(--border-strong);"></td></tr></tfoot></table>`
       } catch (_) { el.innerHTML = '<div class="empty-state"><p class="empty-text">Error al cargar gastos</p></div>' }
     }
 
@@ -1523,6 +1563,15 @@
     /* ===== REALTIME ===== */
     function setupRealtime() {
       socket.on('new-expense', (e) => {
+        if (e.date) {
+          const d = new Date(e.date)
+          if (!isNaN(d.getTime())) {
+            state.expMonth = d.getMonth()
+            state.expYear = d.getFullYear()
+            updateMonthLabels()
+          }
+        }
+        loadDashboard()
         loadExpenses()
         showToast('Nuevo: ' + (e.vendor || 'Gasto') + ' por ' + fmtCur(e.total, e.currency))
         document.querySelectorAll('.stat-value').forEach(el => { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash') })
@@ -1530,7 +1579,15 @@
     }
 
     /* ===== UTILITIES ===== */
-    function fmtDate(s) { return s ? new Date(s).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) : '-' }
+    function fmtDate(s) {
+      if (!s) return '-'
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+      if (m) {
+        const d = new Date(+m[1], +m[2] - 1, +m[3])
+        return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })
+      }
+      return new Date(s).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })
+    }
     function fmtCur(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
     function catClass(c) {
       const m = { 'Alimentos':'food', 'Transporte':'transport', 'Servicios':'utilities', 'Salud':'food', 'Educacion':'office', 'Entretenimiento':'travel', 'Tecnologia':'office', 'Hormiga':'food', 'Hogar':'utilities', 'Vivienda':'utilities' }

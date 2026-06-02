@@ -275,7 +275,34 @@ export class DefaultReceiptRepository {
       return [];
     }
 
-    return (data as ReceiptRow[]).map(rowToExpense);
+    const receipts = (data as ReceiptRow[]).map(rowToExpense);
+
+    if (receipts.length > 0) {
+      const receiptIds = receipts.map((r) => r.id);
+      const { data: itemsData, error: itemsError } = await supabase
+        .from('receipt_items')
+        .select('receipt_id, description, quantity, unit_price, amount')
+        .in('receipt_id', receiptIds);
+
+      if (!itemsError && itemsData) {
+        const itemsByReceiptId: Record<string, GeminiReceiptResult['items']> = {};
+        for (const item of itemsData) {
+          const rid = item.receipt_id;
+          if (!itemsByReceiptId[rid]) itemsByReceiptId[rid] = [];
+          itemsByReceiptId[rid].push({
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            amount: item.amount,
+          });
+        }
+        for (const r of receipts) {
+          r.items = itemsByReceiptId[r.id] || [];
+        }
+      }
+    }
+
+    return receipts;
   }
 
   async getStats(): Promise<ExpenseStats> {
