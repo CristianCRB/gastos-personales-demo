@@ -1,7 +1,3 @@
 allowBuilds:
-  "@whiskeysockets/baileys": true
-  esbuild: true
-  msgpackr-extract: true
-  protobufjs: true
-  sharp: true
-blockExoticSubdeps: false
+  esbuild: set this to true or false
+onlyBuiltDependencies: '[]'

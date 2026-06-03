@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personal Expenses</title>
+  <title>Personal Expenses — Demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -114,15 +114,12 @@
       font-weight: 900; font-size: 17px; line-height: 1;
     }
     .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
-    .status-badge { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; transition: background .3s; }
-    .status-dot.connected { background: var(--emerald); box-shadow: 0 0 8px var(--emerald-dim); }
-    .realtime-badge {
-      display: none; align-items: center; gap: 5px; font-size: 11px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: .04em; color: var(--emerald);
-      background: var(--emerald-dim); padding: 4px 10px; border-radius: 100px;
+    .demo-badge {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .04em; color: var(--amber);
+      background: var(--amber-dim); padding: 4px 10px; border-radius: 100px;
     }
-    .realtime-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--emerald); animation: pulse 1.8s ease-in-out infinite; }
+    .demo-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); animation: pulse 1.8s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
     .theme-switch {
       width: 44px; height: 24px; border-radius: 100px; background: var(--toggle-bg);
@@ -140,29 +137,6 @@
     :root.light .theme-switch-knob { transform: translateX(20px); }
     :root.light .theme-switch-knob .icon-sun { opacity: 1; }
     :root.light .theme-switch-knob .icon-moon { opacity: 0; }
-    .settings-wrapper { position: relative; }
-    .settings-btn {
-      width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center;
-      justify-content: center; color: var(--text-secondary); transition: all .2s;
-    }
-    .settings-btn:hover, .settings-btn.active { background: var(--surface-raised); color: var(--text-primary); }
-    .settings-btn svg { width: 18px; height: 18px; }
-    .settings-dropdown {
-      position: absolute; top: calc(100% + 8px); right: 0; min-width: 220px;
-      background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px;
-      padding: 6px; display: none; z-index: 200;
-      box-shadow: 0 20px 60px rgba(0,0,0,.5);
-    }
-    .settings-dropdown.open { display: block; }
-    .settings-dropdown-item {
-      display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px;
-      border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text-secondary);
-      transition: all .15s;
-    }
-    .settings-dropdown-item:hover { background: var(--surface-raised); color: var(--text-primary); }
-    .settings-dropdown-item svg { width: 16px; height: 16px; flex-shrink: 0; }
-    .settings-dropdown-item.danger:hover { color: var(--rose); background: var(--rose-dim); }
-    .settings-dropdown-divider { height: 1px; background: var(--border); margin: 4px 8px; }
 
     .nav-tabs {
       display: flex; gap: 4px; width: 100%; padding: 8px 0 0; position: relative;
@@ -275,7 +249,7 @@
     .trend-bar.expense { background: var(--amber); }
     .trend-label { font-size: 10px; color: var(--text-tertiary); text-align: center; word-break: keep-all; }
 
-    .login-section { display: flex; justify-content: center; padding-top: 60px; }
+    .login-section { display: flex; justify-content: center; padding-top: 80px; }
     .login-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
       padding: 48px 40px 40px; text-align: center; max-width: 420px; width: 100%;
@@ -285,21 +259,6 @@
     .login-icon svg { width: 28px; height: 28px; stroke: var(--amber); }
     .login-title { font-family: 'Archivo Black', sans-serif; font-size: 28px; font-weight: 900; }
     .login-subtitle { color: var(--text-secondary); font-size: 15px; margin-top: 6px; }
-    .qr-wrap { margin: 28px auto; width: 200px; height: 200px; border-radius: 16px; overflow: hidden; border: 2px solid var(--border); }
-    .qr-wrap img { width: 100%; height: 100%; object-fit: contain; }
-    .steps { text-align: left; margin: 0 auto; max-width: 260px; }
-    .step { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
-    .step-num {
-      width: 26px; height: 26px; border-radius: 8px; background: var(--surface-raised);
-      display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
-      color: var(--text-tertiary); flex-shrink: 0;
-    }
-    .scan-status {
-      display: inline-flex; align-items: center; gap: 6px; margin-top: 20px;
-      padding: 8px 20px; border-radius: 100px; font-size: 14px; font-weight: 500;
-    }
-    .scan-status.pending { background: var(--amber-dim); color: var(--amber); }
-    .scan-status.success { background: var(--emerald-dim); color: var(--emerald); }
 
     .dashboard { display: none; }
     .dashboard.active { display: block; }
@@ -356,11 +315,6 @@
     .modal-close svg { width: 16px; height: 16px; }
     .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
     .modal-sub { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
-    .modal-qr-wrap { width: 180px; height: 180px; margin: 20px auto; border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
-    .modal-qr-wrap img { width: 100%; height: 100%; object-fit: contain; }
-    .modal-status { text-align: center; padding: 8px; border-radius: 8px; font-size: 14px; font-weight: 500; }
-    .modal-status.pending { background: var(--amber-dim); color: var(--amber); }
-    .modal-status.success { background: var(--emerald-dim); color: var(--emerald); }
 
     .form-group { margin-bottom: 16px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
@@ -488,34 +442,11 @@
         Personal Expenses
       </div>
       <div class="header-right">
-        <div class="status-badge">
-          <span class="status-dot" id="statusDot"></span>
-          <span id="statusText">Conectando</span>
-        </div>
-        <span class="realtime-badge" id="realtimeBadge">
-          <span class="realtime-dot"></span>
-          En vivo
-        </span>
+        <span class="demo-badge"><span class="demo-dot"></span>Demo</span>
         <div class="theme-switch" id="themeSwitch" role="button" tabindex="0" aria-label="Cambiar tema">
           <div class="theme-switch-knob">
             <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          </div>
-        </div>
-        <div class="settings-wrapper">
-          <button class="settings-btn" id="settingsBtn" aria-label="Ajustes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          </button>
-          <div class="settings-dropdown" id="settingsDropdown">
-            <button class="settings-dropdown-item" id="reconnectBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/></svg>
-              Re-escanear QR
-            </button>
-            <div class="settings-dropdown-divider"></div>
-            <button class="settings-dropdown-item danger" id="disconnectBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 003.41 2.6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 2 2 0 011.72 2v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.42 19.42 0 01-3.33-2.67m-2.67-3.34a19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91"/><line x1="23" y1="1" x2="1" y2="23"/></svg>
-              Desconectar WhatsApp
-            </button>
           </div>
         </div>
       </div>
@@ -548,17 +479,17 @@
     <section class="login-section" id="loginSection">
       <div class="login-card">
         <div class="login-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 16v-4"/>
+            <path d="M12 8h.01"/>
+          </svg>
         </div>
-        <h1 class="login-title">Bienvenido</h1>
-        <p class="login-subtitle">Vincula tu WhatsApp para gestionar gastos automaticamente</p>
-        <div class="qr-wrap"><img id="qrCode" alt="Codigo QR" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%230B0C0E' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Archivo, sans-serif' font-size='13' fill='%238B8A88' text-anchor='middle' dy='.3em'%3ECargando...%3C/text%3E%3C/svg%3E"></div>
-        <div class="steps">
-          <div class="step"><span class="step-num">1</span>Abre WhatsApp en tu celular</div>
-          <div class="step"><span class="step-num">2</span>Ve a Dispositivos vinculados</div>
-          <div class="step"><span class="step-num">3</span>Escanea este codigo QR</div>
-        </div>
-        <div class="scan-status pending" id="scanStatus">Esperando escaneo</div>
+        <h1 class="login-title">ExpenseFlow <span>Demo</span></h1>
+        <p class="login-subtitle">Explora el dashboard financiero con datos de ejemplo</p>
+        <button class="btn btn-primary" onclick="enterDemo()" style="margin-top:24px;padding:14px 40px;font-size:16px;">
+          Ingresar como Demo
+        </button>
       </div>
     </section>
 
@@ -714,16 +645,6 @@
   </main>
 
   <!-- MODALS -->
-  <div class="modal-overlay" id="qrModal">
-    <div class="modal-card">
-      <button class="modal-close" id="modalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      <div class="modal-title">Escanea el QR</div>
-      <div class="modal-sub">Usa WhatsApp en tu celular para vincular</div>
-      <div class="modal-qr-wrap"><img id="modalQrCode" alt="Codigo QR" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect fill='%230B0C0E' width='180' height='180'/%3E%3Ctext x='50%25' y='50%25' font-family='Archivo, sans-serif' font-size='12' fill='%238B8A88' text-anchor='middle' dy='.3em'%3EGenerando...%3C/text%3E%3C/svg%3E"></div>
-      <div class="modal-status pending" id="modalStatus">Esperando escaneo</div>
-    </div>
-  </div>
-
   <div class="modal-overlay" id="manualExpenseModal">
     <div class="modal-card">
       <button class="modal-close" onclick="closeModal('manualExpenseModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -908,12 +829,9 @@
     <span id="toastMsg">Nuevo gasto registrado</span>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io()
+    const DEMO_SESSION_TOKEN = 'demo-session-token'
     let sessionToken = localStorage.getItem('sessionToken')
-    let pollInterval = null
-    let loginToken = null
     let toastTimer = null
 
     /* ===== STATE ===== */
@@ -1012,55 +930,19 @@
       return r
     }
 
-    /* ===== STATUS ===== */
-    async function checkStatus() {
-      try {
-        const r = await fetch('/api/status')
-        const d = await r.json()
-        const dot = document.getElementById('statusDot')
-        const txt = document.getElementById('statusText')
-        if (d.whatsappConnected) { dot.classList.add('connected'); txt.textContent = 'Conectado' }
-        else { dot.classList.remove('connected'); txt.textContent = 'Sin conexion' }
-      } catch (_) {}
-    }
-
     /* ===== LOGIN ===== */
-    async function initLogin() {
-      try {
-        const r = await fetch('/api/qr-login')
-        const d = await r.json()
-        if (d.alreadyConnected) {
-          if (d.sessionToken) { sessionToken = d.sessionToken; localStorage.setItem('sessionToken', sessionToken); showDashboard(); return }
-          if (localStorage.getItem('sessionToken')) { showDashboard(); return }
-        }
-        if (d.waiting && !d.qr) { document.getElementById('scanStatus').textContent = 'Generando QR...'; setTimeout(initLogin, 3000); return }
-        if (d.qr) { document.getElementById('qrCode').src = d.qr; document.getElementById('scanStatus').textContent = 'Escanea con WhatsApp'; document.getElementById('scanStatus').className = 'scan-status pending' }
-        loginToken = d.token; startPolling()
-      } catch (_) { setTimeout(initLogin, 2000) }
-    }
-
-    function startPolling() {
-      clearInterval(pollInterval)
-      pollInterval = setInterval(async () => {
-        if (!loginToken) return
-        try {
-          const r = await fetch('/api/verify-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: loginToken }) })
-          const d = await r.json()
-          if (d.success) { sessionToken = d.sessionToken; localStorage.setItem('sessionToken', sessionToken); clearInterval(pollInterval); showDashboard() }
-        } catch (_) {}
-      }, 2000)
+    function enterDemo() {
+      sessionToken = DEMO_SESSION_TOKEN
+      localStorage.setItem('sessionToken', sessionToken)
+      showDashboard()
     }
 
     function showDashboard() {
       document.getElementById('loginSection').style.display = 'none'
       document.getElementById('dashboard').classList.add('active')
       document.getElementById('navTabs').style.display = 'flex'
-      document.getElementById('realtimeBadge').style.display = 'inline-flex'
-      document.getElementById('settingsBtn').style.display = 'inline-flex'
       updateMonthLabels()
       loadDashboard()
-      setupRealtime()
-      setupDashboardSocket()
     }
 
     /* ===== DASHBOARD ===== */
@@ -1082,13 +964,13 @@
       document.getElementById('dashStatsTop').innerHTML = `
         <div class="stat-card"><div class="stat-label">Ingreso del Mes</div><div class="stat-value emerald">${fmtCur(d.income?.amount || 0)}</div><div class="stat-foot">${d.income?.description || 'Sin registrar'}</div></div>
         <div class="stat-card"><div class="stat-label">Balance</div><div class="stat-value ${d.balance >= 0 ? 'emerald' : 'rose'}">${fmtCur(d.balance)}</div><div class="stat-foot">${d.balance >= 0 ? 'Superavit' : 'Deficit'}</div></div>
-      `.trim()
+      `
       document.getElementById('dashStatsBottom').innerHTML = `
         <div class="stat-card"><div class="stat-label">Gastos Mensuales</div><div class="stat-value amber">${fmtCur(d.whatsappExpenses.total + d.manualExpenses.total)}</div><div class="stat-foot">WhatsApp + Manual del mes</div></div>
         <div class="stat-card"><div class="stat-label">Gastos Fijos</div><div class="stat-value purple">${fmtCur(d.fixedExpenses.total)}</div><div class="stat-foot">${d.fixedExpenses.count} gasto(s)</div></div>
         <div class="stat-card"><div class="stat-label">Cuotas TDC</div><div class="stat-value blue">${fmtCur(d.creditCardInstallments.total)}</div><div class="stat-foot">${d.creditCardInstallments.count} compra(s) activa(s)</div></div>
         <div class="stat-card"><div class="stat-label">Total Gastado</div><div class="stat-value ${d.totalExpenses > (d.income?.amount || 0) ? 'rose' : 'amber'}">${fmtCur(d.totalExpenses)}</div><div class="stat-foot">WhatsApp + Manual + Cuotas + Fijos</div></div>
-      `.trim()
+      `
     }
 
     function renderDashAlerts(d) {
@@ -1560,24 +1442,6 @@
       } catch (_) { showToast('Error al eliminar') }
     }
 
-    /* ===== REALTIME ===== */
-    function setupRealtime() {
-      socket.on('new-expense', (e) => {
-        if (e.date) {
-          const d = new Date(e.date)
-          if (!isNaN(d.getTime())) {
-            state.expMonth = d.getMonth()
-            state.expYear = d.getFullYear()
-            updateMonthLabels()
-          }
-        }
-        loadDashboard()
-        loadExpenses()
-        showToast('Nuevo: ' + (e.vendor || 'Gasto') + ' por ' + fmtCur(e.total, e.currency))
-        document.querySelectorAll('.stat-value').forEach(el => { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash') })
-      })
-    }
-
     /* ===== UTILITIES ===== */
     function fmtDate(s) {
       if (!s) return '-'
@@ -1594,68 +1458,8 @@
       return m[c] || 'food'
     }
 
-    /* ===== SETTINGS ===== */
-    document.getElementById('settingsBtn').addEventListener('click', (e) => {
-      e.stopPropagation()
-      document.getElementById('settingsDropdown').classList.toggle('open')
-      document.getElementById('settingsBtn').classList.toggle('active')
-    })
-    document.addEventListener('click', () => {
-      document.getElementById('settingsDropdown').classList.remove('open')
-      document.getElementById('settingsBtn').classList.remove('active')
-    })
-
-    /* ===== QR MODAL ===== */
-    const qrModal = document.getElementById('qrModal')
-    document.getElementById('modalClose').addEventListener('click', () => qrModal.classList.remove('open'))
-    qrModal.addEventListener('click', (e) => { if (e.target === qrModal) qrModal.classList.remove('open') })
-
-    function openQrModal() {
-      qrModal.classList.add('open')
-      document.getElementById('modalStatus').textContent = 'Generando QR...'
-      document.getElementById('modalStatus').className = 'modal-status pending'
-      document.getElementById('settingsDropdown').classList.remove('open')
-      document.getElementById('settingsBtn').classList.remove('active')
-    }
-
-    document.getElementById('reconnectBtn').addEventListener('click', async () => {
-      if (!sessionToken) return
-      openQrModal()
-      try {
-        const r = await fetch('/api/reconnect-whatsapp', { method: 'POST', headers: { 'Authorization': `Bearer ${sessionToken}` } })
-        if (!r.ok) { document.getElementById('modalStatus').textContent = 'Error al generar QR'; document.getElementById('modalStatus').className = 'modal-status pending'; return }
-        const d = await r.json()
-        if (d.qr) { document.getElementById('modalQrCode').src = d.qr; document.getElementById('modalStatus').textContent = 'Escanea con WhatsApp'; document.getElementById('modalStatus').className = 'modal-status pending' }
-      } catch (_) { document.getElementById('modalStatus').textContent = 'Error de conexion' }
-    })
-
-    document.getElementById('disconnectBtn').addEventListener('click', async () => {
-      if (!sessionToken) return
-      if (!confirm('Desconectaras WhatsApp de la plataforma. Deseas continuar?')) return
-      document.getElementById('settingsDropdown').classList.remove('open')
-      document.getElementById('settingsBtn').classList.remove('active')
-      try { await fetch('/api/disconnect-whatsapp', { method: 'POST', headers: { 'Authorization': `Bearer ${sessionToken}` } }) } catch (_) {}
-      localStorage.removeItem('sessionToken'); sessionToken = null; location.reload()
-    })
-
-    function setupDashboardSocket() {
-      socket.on('whatsapp-disconnected', () => {
-        document.getElementById('statusDot').classList.remove('connected'); document.getElementById('statusText').textContent = 'Sin conexion'; showToast('WhatsApp desconectado')
-      })
-      socket.on('whatsapp-qr-image', (d) => {
-        if (d && qrModal.classList.contains('open')) { document.getElementById('modalQrCode').src = d; document.getElementById('modalStatus').textContent = 'Escanea con WhatsApp'; document.getElementById('modalStatus').className = 'modal-status pending' }
-      })
-      socket.on('whatsapp-connected', () => {
-        if (qrModal.classList.contains('open')) { document.getElementById('modalStatus').textContent = 'Conectado'; document.getElementById('modalStatus').className = 'modal-status success'; setTimeout(() => qrModal.classList.remove('open'), 1200); showToast('WhatsApp reconectado') }
-        checkStatus()
-      })
-    }
-
     /* ===== INIT ===== */
     async function init() {
-      await checkStatus()
-      setInterval(checkStatus, 5000)
-
       if (sessionToken) {
         try {
           const r = await fetch('/api/session/' + sessionToken)
@@ -1663,18 +1467,6 @@
         } catch (_) {}
         localStorage.removeItem('sessionToken'); sessionToken = null
       }
-
-      socket.on('whatsapp-qr-image', d => {
-        if (d) { document.getElementById('qrCode').src = d; document.getElementById('scanStatus').textContent = 'Escanea con WhatsApp'; document.getElementById('scanStatus').className = 'scan-status pending' }
-      })
-
-      socket.on('whatsapp-connected', async () => {
-        document.getElementById('scanStatus').textContent = 'Conectado'; document.getElementById('scanStatus').className = 'scan-status success'
-        const r = await fetch('/api/check-auth'); const d = await r.json()
-        if (d.sessionToken) { sessionToken = d.sessionToken; localStorage.setItem('sessionToken', sessionToken); setTimeout(showDashboard, 1000) }
-      })
-
-      initLogin()
     }
 
     init()
