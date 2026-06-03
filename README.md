@@ -1,6 +1,6 @@
 # ExpenseFlow - Sistema de Gestion de Gastos
 
-Sistema premium de gestion de gastos con bot de WhatsApp y dashboard web en tiempo real.
+Plataforma web de gestión financiera personal desarrollada con TypeScript, HTML, Tailwind CSS y Supabase. Implementa integración con WhatsApp mediante Baileys y procesamiento de documentos con Gemini AI para capturar automáticamente gastos a partir de fotografías de facturas POS y documentos tributarios. La inteligencia artificial extrae encabezados, productos, impuestos, totales y demás datos estructurados en formato JSON, almacenándolos automáticamente en la base de datos. El sistema incorpora módulos de ingresos, gastos, gastos fijos, tarjetas de crédito, alertas de vencimiento, análisis de capacidad financiera y paneles estadísticos con indicadores de uso de ingresos y evolución financiera mensual.
 
 ## Caracteristicas
 
