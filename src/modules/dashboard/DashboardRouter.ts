@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
   DEMO_SESSION_TOKEN, getAllDemoWhatsApp, getDemoStats,
-} from '@/shared/demo/demoData.js';
+} from '../../shared/demo/demoData.js';
 
 const router = Router();
 

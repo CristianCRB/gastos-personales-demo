@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { DEMO_SESSION_TOKEN, getDemoMonthlySummary } from '@/shared/demo/demoData.js';
+import { DEMO_SESSION_TOKEN, getDemoMonthlySummary } from '../../shared/demo/demoData.js';
 
 const router = Router();
 

@@ -3,7 +3,7 @@ import {
   DEMO_SESSION_TOKEN, getAllDemoCards, addDemoCard, updateDemoCard,
   deleteDemoCard, getDemoPurchases, addDemoPurchase, deleteDemoPurchase,
   getDemoActiveInstallments,
-} from '@/shared/demo/demoData.js';
+} from '../../shared/demo/demoData.js';
 
 const router = Router();
 

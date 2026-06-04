@@ -4,10 +4,10 @@
   "description": "VIP Expense Management System with WhatsApp Bot and Web Dashboard",
   "type": "module",
   "scripts": {
-    "start": "tsx src/server.ts",
-    "dev": "tsx --watch src/server.ts",
+    "dev": "tsx src/server.ts",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -1,12 +1,12 @@
 import express, { type Express } from 'express';
 import cors from 'cors';
-import { initializeDemoStore } from '@/shared/demo/demoData.js';
-import { dashboardRouter } from '@/modules/dashboard/DashboardRouter.js';
-import { incomeRouter } from '@/modules/income/IncomeRouter.js';
-import { manualExpenseRouter } from '@/modules/manual-expenses/ManualExpenseRouter.js';
-import { fixedExpenseRouter } from '@/modules/fixed-expenses/FixedExpenseRouter.js';
-import { creditCardRouter } from '@/modules/credit-cards/CreditCardRouter.js';
-import { summaryRouter } from '@/modules/summary/SummaryRouter.js';
+import { initializeDemoStore } from './shared/demo/demoData.js';
+import { dashboardRouter } from './modules/dashboard/DashboardRouter.js';
+import { incomeRouter } from './modules/income/IncomeRouter.js';
+import { manualExpenseRouter } from './modules/manual-expenses/ManualExpenseRouter.js';
+import { fixedExpenseRouter } from './modules/fixed-expenses/FixedExpenseRouter.js';
+import { creditCardRouter } from './modules/credit-cards/CreditCardRouter.js';
+import { summaryRouter } from './modules/summary/SummaryRouter.js';
 
 export function createApp(): { expressApp: Express } {
   initializeDemoStore();

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   DEMO_SESSION_TOKEN, getAllDemoManual, getDemoManualFiltered,
   addDemoManual, updateDemoManual, deleteDemoManual,
-} from '@/shared/demo/demoData.js';
+} from '../../shared/demo/demoData.js';
 
 const router = Router();
 
